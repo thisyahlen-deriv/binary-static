@@ -109,8 +109,7 @@ const Purchase = (() => {
                             const redirect = '<a href="https://www.binary.com/en/terms-and-conditions.html?anchor=trading-limits#legal-binary" target="_blank" rel="noopener noreferrer">';
                             const redirect_close = '</a>';
                             message = localize('No further trading is allowed on this contract type for the current trading session. For more info, refer to our [_1]terms and conditions[_2].',[redirect, redirect_close]);
-                        }
-                        if (/NoMFProfessionalClient/.test(error.code)) {
+                        } else if (/NoMFProfessionalClient/.test(error.code)) {
                             const account_status = getPropertyValue(response, ['get_account_status', 'status']) || [];
                             const has_professional_requested = account_status.includes('professional_requested');
                             const has_professional_rejected  = account_status.includes('professional_rejected');
