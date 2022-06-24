@@ -93,6 +93,8 @@ const Purchase = (() => {
                 processPriceRequest();
                 TopUpVirtualPopup.show(error.message);
             } else {
+                confirmation_error.setVisibility(1);
+                let message = error.message;
                 contracts_list.style.display = 'none';
                 container.style.display = 'block';
                 message_container.hide();
@@ -101,15 +103,18 @@ const Purchase = (() => {
                     const authorization_error_btn_login = CommonFunctions.getElementById('authorization_error_btn_login');
                     authorization_error_btn_login.removeEventListener('click', loginOnClick);
                     authorization_error_btn_login.addEventListener('click', loginOnClick);
+                } else if (/CompanyWideLimitExceeded/i.test(error.code)) {
+                    const redirect =
+                          '<a href="https://www.binary.com/en/terms-and-conditions.html?anchor=trading-limits#legal-binary" target="_blank" rel="noopener noreferrer">';
+                    const redirect_close = '</a>';
+                    message = localize(
+                        'No further trading is allowed on this contract type for the current trading session. For more info, refer to our [_1]terms and conditions[_2].',
+                        [redirect, redirect_close]
+                    );
                 } else {
                     BinarySocket.wait('get_account_status').then(response => {
-                        confirmation_error.setVisibility(1);
-                        let message = error.message;
-                        if (/CompanyWideLimitExceeded/i.test(error.code)) {
-                            const redirect = '<a href="https://www.binary.com/en/terms-and-conditions.html?anchor=trading-limits#legal-binary" target="_blank" rel="noopener noreferrer">';
-                            const redirect_close = '</a>';
-                            message = localize('No further trading is allowed on this contract type for the current trading session. For more info, refer to our [_1]terms and conditions[_2].',[redirect, redirect_close]);
-                        } else if (/NoMFProfessionalClient/.test(error.code)) {
+                        
+                        if (/NoMFProfessionalClient/.test(error.code)) {
                             const account_status = getPropertyValue(response, ['get_account_status', 'status']) || [];
                             const has_professional_requested = account_status.includes('professional_requested');
                             const has_professional_rejected  = account_status.includes('professional_rejected');
@@ -144,10 +149,10 @@ const Purchase = (() => {
                                 message = error.message;
                             }
                         }
-
-                        CommonFunctions.elementInnerHtml(confirmation_error, message);
                     });
                 }
+                CommonFunctions.elementInnerHtml(confirmation_error,message);
+
             }
         } else {
             contracts_list.style.display = 'none';
