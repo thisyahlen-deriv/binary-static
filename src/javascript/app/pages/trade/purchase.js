@@ -87,72 +87,135 @@ const Purchase = (() => {
         if (error) {
             const balance = State.getResponse('balance.balance');
             confirmation_error.show();
-
             if (/InsufficientBalance/.test(error.code) && TopUpVirtualPopup.shouldShow(balance, true)) {
                 hidePriceOverlay();
                 processPriceRequest();
                 TopUpVirtualPopup.show(error.message);
             } else {
-                confirmation_error.setVisibility(1);
-                let message = error.message;
                 contracts_list.style.display = 'none';
                 container.style.display = 'block';
                 message_container.hide();
                 if (/AuthorizationRequired/.test(error.code)) {
                     authorization_error.setVisibility(1);
-                    const authorization_error_btn_login = CommonFunctions.getElementById('authorization_error_btn_login');
-                    authorization_error_btn_login.removeEventListener('click', loginOnClick);
-                    authorization_error_btn_login.addEventListener('click', loginOnClick);
-                } else if (/CompanyWideLimitExceeded/i.test(error.code)) {
-                    const redirect =
-                          '<a href="https://www.binary.com/en/terms-and-conditions.html?anchor=trading-limits#legal-binary" target="_blank" rel="noopener noreferrer">';
-                    const redirect_close = '</a>';
-                    message = localize(
-                        'No further trading is allowed on this contract type for the current trading session. For more info, refer to our [_1]terms and conditions[_2].',
-                        [redirect, redirect_close]
+                    const authorization_error_btn_login =
+                    CommonFunctions.getElementById('authorization_error_btn_login');
+                    authorization_error_btn_login.removeEventListener('click',
+                        loginOnClick
+                    );
+                    authorization_error_btn_login.addEventListener(
+                        'click',
+                        loginOnClick
                     );
                 } else {
-                    BinarySocket.wait('get_account_status').then(response => {
-                        
-                        if (/NoMFProfessionalClient/.test(error.code)) {
-                            const account_status = getPropertyValue(response, ['get_account_status', 'status']) || [];
-                            const has_professional_requested = account_status.includes('professional_requested');
-                            const has_professional_rejected  = account_status.includes('professional_rejected');
-                            if (has_professional_requested) {
-                                message = localize('Your application to be treated as a professional client is being processed.');
-                            } else if (has_professional_rejected) {
-                                const message_text = `${localize('Your professional client request is [_1]not approved[_2].', ['<strong>', '</strong>'])}<br />${localize('Please reapply once the required criteria has been fulfilled.')}<br /><br />${localize('More information can be found in an email sent to you.')}`;
-                                const button_text  = localize('I want to reapply');
+                    confirmation_error.setVisibility(1);
+                    let message = error.message;
+                    if (/CompanyWideLimitExceeded/i.test(error.code)) {
+                        const redirect =
+                  '<a href="https://www.binary.com/en/terms-and-conditions.html?anchor=trading-limits#legal-binary" target="_blank" rel="noopener noreferrer">';
+                        const redirect_close = '</a>';
+                        message = localize(
+                            'No further trading is allowed on this contract type for the current trading session. For more info, refer to our [_1]terms and conditions[_2].',
+                            [redirect, redirect_close]
+                        );
+                    } else {
+                        BinarySocket.wait('get_account_status').then((response) => {
+                            if (/NoMFProfessionalClient/.test(error.code)) {
+                                const account_status =
+                      getPropertyValue(response, [
+                          'get_account_status',
+                          'status',
+                      ]) || [];
+                                const has_professional_requested = account_status.includes(
+                                    'professional_requested'
+                                );
+                                const has_professional_rejected = account_status.includes(
+                                    'professional_rejected'
+                                );
+                                if (has_professional_requested) {
+                                    message = localize(
+                                        'Your application to be treated as a professional client is being processed.'
+                                    );
+                                } else if (has_professional_rejected) {
+                                    const message_text = `${localize(
+                                        'Your professional client request is [_1]not approved[_2].',
+                                        ['<strong>', '</strong>']
+                                    )}<br />${localize(
+                                        'Please reapply once the required criteria has been fulfilled.'
+                                    )}<br /><br />${localize(
+                                        'More information can be found in an email sent to you.'
+                                    )}`;
+                                    const button_text = localize('I want to reapply');
 
-                                message = prepareConfirmationErrorCta(message_text, button_text, true);
-                            } else {
-                                const message_text = localize('In the EU, financial binary options are only available to professional investors.');
-                                const button_text  = localize('Apply now as a professional investor');
+                                    message = prepareConfirmationErrorCta(
+                                        message_text,
+                                        button_text,
+                                        true
+                                    );
+                                } else {
+                                    const message_text = localize(
+                                        'In the EU, financial binary options are only available to professional investors.'
+                                    );
+                                    const button_text = localize(
+                                        'Apply now as a professional investor'
+                                    );
 
-                                message = prepareConfirmationErrorCta(message_text, button_text);
-                            }
-                        } else if (/RestrictedCountry/.test(error.code)) {
-                            let additional_message = '';
-                            if (/FinancialBinaries/.test(error.code)) {
-                                additional_message = localize('Try our [_1]Synthetic Indices[_2].', [`<a href="${urlFor('get-started/binary-options', 'anchor=synthetic-indices#range-of-markets')}" >`, '</a>']);
-                            } else if (/Random/.test(error.code)) {
-                                additional_message = localize('Try our other markets.');
-                            }
+                                    message = prepareConfirmationErrorCta(
+                                        message_text,
+                                        button_text
+                                    );
+                                }
+                            } else if (/RestrictedCountry/.test(error.code)) {
+                                let additional_message = '';
+                                if (/FinancialBinaries/.test(error.code)) {
+                                    additional_message = localize(
+                                        'Try our [_1]Synthetic Indices[_2].',
+                                        [
+                                            `<a href="${urlFor(
+                                                'get-started/binary-options',
+                                                'anchor=synthetic-indices#range-of-markets'
+                                            )}" >`,
+                                            '</a>',
+                                        ]
+                                    );
+                                } else if (/Random/.test(error.code)) {
+                                    additional_message = localize('Try our other markets.');
+                                }
 
-                            message = `${error.message}. ${additional_message}`;
-                        } else if (/ClientUnwelcome/.test(error.code) && /gb/.test(Client.get('residence'))) {
-                            if (!Client.hasAccountType('real') && Client.get('is_virtual')) {
-                                message = localize('Please complete the [_1]Real Account form[_2] to verify your age as required by the [_3]UK Gambling[_4] Commission (UKGC).', [`<a href='${urlFor('new_account/realws')}'>`, '</a>', '<strong>', '</strong>']);
-                            } else if (Client.hasAccountType('real') && /^virtual|iom$/i.test(Client.get('landing_company_shortcode'))) {
-                                message = localize('Account access is temporarily limited. Please check your inbox for more details.');
-                            } else {
-                                message = error.message;
+                                message = `${error.message}. ${additional_message}`;
+                            } else if (
+                                /ClientUnwelcome/.test(error.code) &&
+                    /gb/.test(Client.get('residence'))
+                            ) {
+                                if (
+                                    !Client.hasAccountType('real') &&
+                      Client.get('is_virtual')
+                                ) {
+                                    message = localize(
+                                        'Please complete the [_1]Real Account form[_2] to verify your age as required by the [_3]UK Gambling[_4] Commission (UKGC).',
+                                        [
+                                            `<a href='${urlFor('new_account/realws')}'>`,
+                                            '</a>',
+                                            '<strong>',
+                                            '</strong>',
+                                        ]
+                                    );
+                                } else if (
+                                    Client.hasAccountType('real') &&
+                      /^virtual|iom$/i.test(
+                          Client.get('landing_company_shortcode')
+                      )
+                                ) {
+                                    message = localize(
+                                        'Account access is temporarily limited. Please check your inbox for more details.'
+                                    );
+                                } else {
+                                    message = error.message;
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
+                    CommonFunctions.elementInnerHtml(confirmation_error, message);
                 }
-                CommonFunctions.elementInnerHtml(confirmation_error,message);
-
             }
         } else {
             contracts_list.style.display = 'none';
@@ -162,32 +225,66 @@ const Purchase = (() => {
             authorization_error.setVisibility(0);
             confirmation_error.setVisibility(0);
 
-            CommonFunctions.elementTextContent(heading, localize('Contract Confirmation'));
+            CommonFunctions.elementTextContent(
+                heading,
+                localize('Contract Confirmation')
+            );
             CommonFunctions.elementTextContent(descr, receipt.longcode);
             CommonFunctions.elementTextContent(barrier_element, '');
-            CommonFunctions.elementTextContent(reference, `${localize('Your transaction reference is')} ${receipt.transaction_id}`);
+            CommonFunctions.elementTextContent(
+                reference,
+                `${localize('Your transaction reference is')} ${
+                    receipt.transaction_id
+                }`
+            );
 
             const currency = Client.get('currency');
             let formula, multiplier;
             const { contract_type } = passthrough;
             if (isLookback(contract_type)) {
-                multiplier = formatMoney(currency, passthrough.multiplier, false, 3, 2);
-                formula    = getLookBackFormula(contract_type, multiplier);
+                multiplier = formatMoney(
+                    currency,
+                    passthrough.multiplier,
+                    false,
+                    3,
+                    2
+                );
+                formula = getLookBackFormula(contract_type, multiplier);
             }
 
             payout_value = +receipt.payout;
-            cost_value   = receipt.buy_price;
+            cost_value = receipt.buy_price;
 
-            const potential_profit_value = payout_value ? formatMoney(currency, payout_value - cost_value) : undefined;
+            const potential_profit_value = payout_value
+                ? formatMoney(currency, payout_value - cost_value)
+                : undefined;
 
-            CommonFunctions.elementInnerHtml(cost,   `${localize('Total Cost')} <p>${formatMoney(currency, cost_value)}</p>`);
+            CommonFunctions.elementInnerHtml(
+                cost,
+                `${localize('Total Cost')} <p>${formatMoney(
+                    currency,
+                    cost_value
+                )}</p>`
+            );
             if (isLookback(contract_type)) {
-                CommonFunctions.elementInnerHtml(payout, `${localize('Potential Payout')} <p>${formula}</p>`);
+                CommonFunctions.elementInnerHtml(
+                    payout,
+                    `${localize('Potential Payout')} <p>${formula}</p>`
+                );
                 profit.setVisibility(0);
             } else {
                 profit.setVisibility(1);
-                CommonFunctions.elementInnerHtml(payout, `${localize('Potential Payout')} <p>${formatMoney(currency, payout_value)}</p>`);
-                CommonFunctions.elementInnerHtml(profit, `${localize('Potential Profit')} <p>${potential_profit_value}</p>`);
+                CommonFunctions.elementInnerHtml(
+                    payout,
+                    `${localize('Potential Payout')} <p>${formatMoney(
+                        currency,
+                        payout_value
+                    )}</p>`
+                );
+                CommonFunctions.elementInnerHtml(
+                    profit,
+                    `${localize('Potential Profit')} <p>${potential_profit_value}</p>`
+                );
             }
 
             updateValues.updateContractBalance(receipt.balance_after);
@@ -211,10 +308,14 @@ const Purchase = (() => {
                 CommonFunctions.elementTextContent(button, localize('View'));
                 button.setAttribute('contract_id', receipt.contract_id);
                 button.show();
-                $('#confirmation_message_container .open_contract_details').attr('contract_id', receipt.contract_id).setVisibility(1);
+                $('#confirmation_message_container .open_contract_details')
+                    .attr('contract_id', receipt.contract_id)
+                    .setVisibility(1);
             } else {
                 button.hide();
-                $('#confirmation_message_container .open_contract_details').setVisibility(0);
+                $(
+                    '#confirmation_message_container .open_contract_details'
+                ).setVisibility(0);
             }
         }
 
