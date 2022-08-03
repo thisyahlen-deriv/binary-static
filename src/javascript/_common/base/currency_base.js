@@ -176,7 +176,7 @@ const CryptoConfig = (() => {
         },
         tUSDT: {
             display_code     : 'tUSDT',
-            name             : localize('Tether TRCC20'),
+            name             : localize('Tether TRC20'),
             min_withdrawal   : 0.02,
             pa_max_withdrawal: 2000,
             pa_min_withdrawal: 10,
