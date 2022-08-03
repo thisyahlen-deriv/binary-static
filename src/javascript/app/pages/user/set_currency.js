@@ -180,7 +180,7 @@ const SetCurrency = (() => {
                 }),
                 ...(/^tUSDT/.test(c) && {
                     'data-balloon': localize(
-                        'Tether as an TRC20 token (tUSDT) is a version of Tether that is hosted on Ethereum.'
+                        'Tether as a TRC20 token (tUSDT) is a version of Tether that is hosted on Tron.'
                     ),
                     'data-balloon-length': 'medium',
                     'data-balloon-pos'   : 'top',
