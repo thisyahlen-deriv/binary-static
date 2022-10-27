@@ -56,6 +56,11 @@ const ViewPopup = (() => {
         }
 
         getContract();
+
+        if (btn_view) {
+            ViewPopupUI.enableButton($(btn_view));
+            ViewPopupUI.cleanup(true);
+        }
     };
 
     const responseContract = (response) => {
