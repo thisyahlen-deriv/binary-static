@@ -1213,16 +1213,12 @@ button > .barspinner.white {
 
 .navigation {
   display: block;
-  padding: 0 2rem;
   background: #16212d;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   background: transparent; }
-  @media (max-width: 1024px) {
-    .navigation {
-      display: none; } }
   .navigation-container {
     display: flex;
     align-items: center;
@@ -1230,6 +1226,9 @@ button > .barspinner.white {
     padding: 2rem 3rem;
     max-width: 1440px;
     margin: 0px auto; }
+    @media (max-width: 1024px) {
+      .navigation-container {
+        padding: 16px; } }
   .navigation-logo {
     width: 138px; }
     .navigation-logo img {
@@ -1238,46 +1237,62 @@ button > .barspinner.white {
     padding: 10px 16px;
     font: 700 0.9rem "IBM Plex Sans", sans-serif;
     text-transform: none;
-    border-radius: 6px; }
+    border-radius: 6px;
+    margin-left: 22px; }
+    @media (max-width: 1024px) {
+      .navigation .right-btn {
+        display: none; } }
 
 .binary-section-container {
   margin: 0 auto;
   max-width: 1400px; }
 
-.l-btn {
+.l-btn-binary {
   height: 2.5rem;
   border-radius: 0.25rem;
   font: 700 0.875rem "IBM Plex Sans", sans-serif;
-  background-color: #C2C2C2;
+  background-color: #fff !important;
   color: #000;
   outline: none;
   border: none;
   padding: 0 1rem;
   cursor: pointer;
   text-transform: none; }
-  .l-btn.primary {
-    background-color: #2E8836;
+  .l-btn-binary.primary {
+    background-color: #2E8836 !important;
     color: #fff; }
-    .l-btn.primary:hover {
-      background-color: #246d2a;
+    .l-btn-binary.primary:hover {
+      background-color: #246d2a !important;
       color: #fff; }
-  .l-btn.danger {
-    background: #FF444F;
+  .l-btn-binary.danger {
+    background: #FF444F !important;
     color: #fff; }
-    .l-btn.danger:hover {
-      background-color: #cd353e;
+    .l-btn-binary.danger:hover {
+      background-color: #cd353e !important;
       color: #fff; }
-  .l-btn:hover {
-    background-color: #979797;
+  .l-btn-binary:hover {
+    background-color: #C2C2C2 !important;
     color: #000; }
+  .l-btn-binary.transparent {
+    background-color: transparent !important;
+    border: solid 2px #999999;
+    text-transform: none; }
+    .l-btn-binary.transparent:hover {
+      background-color: #C2C2C2 !important; }
 
-.btn-group button {
-  margin-right: 1rem; }
-
-@media (max-width: 1024px) {
-  .btn-group {
-    text-align: center;
-    margin-bottom: 2.4rem; } }
+.btn-group-binary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; }
+  .btn-group-binary button {
+    min-width: max-content; }
+  @media (max-width: 1024px) {
+    .btn-group-binary {
+      text-align: center;
+      margin-bottom: 2.4rem;
+      gap: 16px; }
+      .btn-group-binary button {
+        flex: 1; } }
 
 .switch {
   background: url(../image/sectionTwoLandingBackground.png) no-repeat;
@@ -1316,12 +1331,9 @@ button > .barspinner.white {
           font: 400 1.2rem "IBM Plex Sans", sans-serif;
           text-align: center;
           padding: 0 2rem; } }
-    .switch-inner__content .l-btn.transparent {
-      background-color: transparent;
-      border: solid 2px #999999;
-      text-transform: none; }
-      .switch-inner__content .l-btn.transparent:hover {
-        background-color: #C2C2C2; }
+    @media (max-width: 1024px) {
+      .switch-inner__content .btn-group-binary {
+        padding: 0 1rem 0 1rem; } }
 
 .landing_carousel {
   display: flex !important;
@@ -1767,14 +1779,6 @@ button > .barspinner.white {
       @media (max-width: 1024px) {
         .hero-wrapper-container-right-binary {
           margin: 0 10%; } }
-    .hero-wrapper-container-logo-binary {
-      display: none;
-      justify-content: center; }
-      .hero-wrapper-container-logo-binary img {
-        width: 50%; }
-      @media (max-width: 1024px) {
-        .hero-wrapper-container-logo-binary {
-          display: flex; } }
 
 .slick-slider {
   width: 100%; }
@@ -1783,6 +1787,69 @@ button > .barspinner.white {
   display: flex !important;
   justify-content: center;
   align-items: center; }
+
+.language-selector {
+  position: relative; }
+  .language-selector-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 200ms; }
+    .language-selector-button:hover {
+      opacity: 0.5; }
+    .language-selector-button-name {
+      font: 700 16px "IBM Plex Sans", sans-serif;
+      color: #fff;
+      margin: 4px !important; }
+    .language-selector-button-arrow {
+      width: 16px;
+      height: 16px;
+      background-image: url(../image/dropdown-arrow.svg) !important;
+      transition: all 200ms; }
+      .language-selector-button-arrow.up {
+        rotate: -180deg; }
+      .language-selector-button-arrow.down {
+        rotate: 0deg; }
+  .language-selector-container {
+    background-color: #fff;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    position: absolute;
+    z-index: 9999;
+    top: 40px;
+    right: 0;
+    transition: all 200ms;
+    box-shadow: 0px 20px 24px -4px rgba(14, 14, 14, 0.08), 0px 8px 8px -4px rgba(14, 14, 14, 0.03);
+    border-radius: 8px; }
+    .language-selector-container.open {
+      opacity: 1;
+      top: 40px;
+      pointer-events: 'unset'; }
+    .language-selector-container.close {
+      opacity: 0;
+      top: 30px;
+      pointer-events: none; }
+  .language-selector-item-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 200ms; }
+    .language-selector-item-container:hover {
+      background-color: #F0F5F8; }
+  .language-selector-item-name {
+    font: 400 14px "IBM Plex Sans", sans-serif;
+    color: #333333;
+    margin: 0 !important; }
+    .language-selector-item-name.selected {
+      font: 700 14px "IBM Plex Sans", sans-serif;
+      color: #ff444f; }
 
 .section-container {
   padding: 0 2rem;
@@ -2356,7 +2423,8 @@ button > .barspinner.white {
       .carousel-title h1 {
         font: 700 1.5rem "IBM Plex Sans", sans-serif;
         text-align: center;
-        padding: 0 2rem; } }
+        padding: 0 2rem;
+        margin-top: 2.5rem; } }
 
 .carousel_section .slick-list {
   margin: 0 0 0 7.5rem; }
@@ -2835,4 +2903,4 @@ label {
 .notifyjs-corner {
   z-index: 998 !important; }
 
-/*# sourceMappingURL=bot-a2172c47a0.css.map */
+/*# sourceMappingURL=bot-a54c470547.css.map */

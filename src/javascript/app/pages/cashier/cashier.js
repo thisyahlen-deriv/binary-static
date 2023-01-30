@@ -14,6 +14,7 @@ const BinaryPjax             = require('../../base/binary_pjax');
 const Accounts               = require('../user/accounts');
 const Header                 = require('../../base/header');
 const isEuCountry            = require('../../common/country_base').isEuCountry;
+const getLanguage            = require('../../../_common/language').get;
 
 const Cashier = (() => {
     let href = '';
@@ -135,53 +136,6 @@ const Cashier = (() => {
         el_acc_currency.setVisibility(show_current_currency);
     };
 
-    const setCryptoMinimumWithdrawal = () => {
-        BinarySocket.send({ crypto_config: 1 }).then((response) => {
-            $('#cryptocurrency tbody tr').each(function () {
-                const $row = $(this);
-                const $columns = $row.find('td:nth-child(2) div:nth-child(2)');
-
-                const $crypto_min_withdrawal = $columns.find('span[data-currency]');
-                const shortname = $crypto_min_withdrawal.attr('data-currency');
-
-                if (shortname && $crypto_min_withdrawal) {
-                    const minimum_withdrawal = getPropertyValue(response, ['crypto_config', 'currencies_config',shortname, 'minimum_withdrawal']);
-
-                    let to_fixed = 0;
-                    // cut long numbers off after two non-zero decimals
-                    // examples: 0.00123456 -> 0.0012, 0.01234567 -> 0.012, 0.12345678 -> 0.12, 0.00102345 -> 0.00102
-                    // first check if number has any decimal places
-                    if (/\./.test(minimum_withdrawal)) {
-                        let count_non_zero = 0;
-
-                        // change number to string so we can use split on it
-                        // split by . separator to only parse the decimal places
-                        // split to array so we can parse each number one by one
-                        const array_decimals = minimum_withdrawal.toString().split('.')[1].split('');
-
-                        to_fixed = array_decimals.findIndex((n) => {
-                            // if current number is not a zero
-                            // and we have parsed more than 2 non-zero numbers
-                            // cut off the number here
-                            if (+n !== 0 && count_non_zero >= 2) {
-                                return true;
-                            }
-                            // otherwise add to the count if current number is not zero and move to the next number
-                            if (+n !== 0) {
-                                count_non_zero += 1;
-                            }
-                            return false;
-                        });
-                    }
-                    // if there is not more than 2 non-zero decimals
-                    // don't cut off the number
-                    const min_withdrawal = to_fixed === -1 ? minimum_withdrawal : minimum_withdrawal.toFixed(to_fixed);
-                    $crypto_min_withdrawal.text(min_withdrawal);
-                }
-            });
-        });
-    };
-
     const setBtnDisable = selector => $(selector).addClass('button-disabled').click(false);
 
     const applyStateLockLogic = (status, deposit, withdraw) => {
@@ -206,13 +160,6 @@ const Cashier = (() => {
 
     const checkStatusIsLocked = ({ status }) => {
         applyStateLockLogic(status, '.deposit_btn_cashier', '.withdraw_btn_cashier');
-    };
-
-    const checkLockStatusPA = () => {
-        BinarySocket.wait('get_account_status').then(() => {
-            const { status } = State.getResponse('get_account_status');
-            applyStateLockLogic(status, '.deposit', '.withdraw');
-        });
     };
 
     const switchToAccount = (account_type, transaction_type, fiat_account) => {
@@ -400,6 +347,11 @@ const Cashier = (() => {
                 }
             });
         }
+        const lang  = getLanguage();
+        const all_links = Array.from(document.getElementsByTagName('a'));
+        const payment_methods_link = all_links.filter(link => link.href.includes('payment_methods'));
+        payment_methods_link.map(a => a.href = `https://deriv.com/${lang.toLowerCase().replace(/_/g, '-')}/payment-methods/`);
+        
         showContent();
     };
 
@@ -407,9 +359,8 @@ const Cashier = (() => {
         onLoad,
         PaymentMethods: {
             onLoad: () => {
-                showContent();
-                checkLockStatusPA();
-                setCryptoMinimumWithdrawal();
+                const lang  = getLanguage();
+                window.location.href = `https://deriv.com/${lang.toLowerCase().replace(/_/g, '-')}/payment-methods/`;
             },
         },
     };
